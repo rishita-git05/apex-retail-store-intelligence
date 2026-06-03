@@ -1,0 +1,37 @@
+# Virtual Environments
+.venv/
+venv/
+env/
+
+# Python & Testing Caches
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Databases
+store.db
+test_*.db
+*.db
+
+# Computer Vision Assets (Pipeline-only)
+data/videos/
+*.mp4
+yolov8n.pt
+*.pt
+
+# Developer Scripts & Tests
+tests/
+scratch/
+test_yolo.py
+pipeline/
+
+# Logs & Configs
+*.log
+.git/
+.gitignore
+.dockerignore
+docker-compose.yaml
+Dockerfile
+README.md
+docs/
+dashboard/

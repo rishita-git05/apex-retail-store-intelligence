@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apex Retail - Store Intelligence</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        premium: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            900: '#4c1d95',
+                            950: '#0f0720',
+                            }
+                        }
+                    }
+                }
+            }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: radial-gradient(circle at top right, rgba(139, 92, 246, 0.08), transparent 40%),
+                        radial-gradient(circle at bottom left, rgba(76, 29, 149, 0.05), transparent 45%),
+                        #020617;
+        }
+        .glass {
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col overflow-hidden">
+
+    <!-- Top Navigation -->
+    <header class="glass sticky top-0 z-40 w-full px-6 py-4 flex items-center justify-between border-b border-slate-800">
+        <div class="flex items-center gap-3">
+            <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-violet-500 to-fuchsia-500 flex items-center justify-center font-bold text-lg shadow-lg shadow-violet-500/20">
+                A
+            </div>
+            <div>
+                <h1 class="text-xl font-semibold tracking-tight text-white">Apex Retail</h1>
+                <p class="text-xs text-slate-400 font-medium">Store Intelligence Center</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <!-- Store Selector -->
+            <div>
+                <label for="store-select" class="sr-only">Select Store</label>
+                <select id="store-select" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500">
+                    <option value="STORE_BLR_002" selected>STORE_BLR_002 (Bangalore)</option>
+                    <option value="ST1008">ST1008 (Brigade Road)</option>
+                    <option value="ST1076">ST1076 (Mumbai)</option>
+                </select>
+            </div>
+            
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25">
+                <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                System Live
+            </span>
+        </div>
+    </header>
+
+    <!-- Main Workspace Layout -->
+    <main class="flex-1 overflow-y-auto p-6 space-y-6">
+
+        <!-- Metrics Dashboard -->
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-5">
+            <!-- Card 1: Unique Visitors -->
+            <div class="glass p-5 rounded-2xl flex flex-col justify-between shadow-xl">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-slate-400">Unique Visitors</span>
+                    <span class="p-2 rounded-lg bg-violet-500/10 text-violet-400 text-lg">👥</span>
+                </div>
+                <div class="mt-4">
+                    <span id="metric-visitors" class="text-3xl font-bold text-white">0</span>
+                    <div class="text-xs text-slate-400 mt-1">Excludes staff members</div>
+                </div>
+            </div>
+
+            <!-- Card 2: Conversion Rate -->
+            <div class="glass p-5 rounded-2xl flex flex-col justify-between shadow-xl">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-slate-400">Conversion Rate</span>
+                    <span class="p-2 rounded-lg bg-fuchsia-500/10 text-fuchsia-400 text-lg">💰</span>
+                </div>
+                <div class="mt-4">
+                    <div class="flex items-baseline gap-2">
+                        <span id="metric-conversion" class="text-3xl font-bold text-white">0.0%</span>
+                    </div>
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-slate-800 rounded-full h-1.5 mt-3 overflow-hidden">
+                        <div id="conversion-progress" class="bg-gradient-to-r from-violet-500 to-fuchsia-500 h-1.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3: Queue Depth -->
+            <div class="glass p-5 rounded-2xl flex flex-col justify-between shadow-xl">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-slate-400">Queue Depth</span>
+                    <span id="queue-status-badge" class="px-2 py-0.5 rounded text-xs font-semibold bg-slate-800 text-slate-400">Normal</span>
+                </div>
+                <div class="mt-4">
+                    <span id="metric-queue" class="text-3xl font-bold text-white">0</span>
+                    <div class="text-xs text-slate-400 mt-1">Customers at billing counter</div>
+                </div>
+            </div>
+
+            <!-- Card 4: Queue Abandonment -->
+            <div class="glass p-5 rounded-2xl flex flex-col justify-between shadow-xl">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-slate-400">Abandonment Rate</span>
+                    <span class="p-2 rounded-lg bg-rose-500/10 text-rose-400 text-lg">🚪</span>
+                </div>
+                <div class="mt-4">
+                    <span id="metric-abandonment" class="text-3xl font-bold text-white">0.0%</span>
+                    <div class="w-full bg-slate-800 rounded-full h-1.5 mt-3 overflow-hidden">
+                        <div id="abandonment-progress" class="bg-rose-500 h-1.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dynamic Warnings / Alerts -->
+        <section id="alerts-section" class="hidden">
+            <div class="glass p-5 rounded-2xl border-l-4 border-rose-500 shadow-xl bg-rose-950/10">
+                <div class="flex gap-3">
+                    <div class="text-rose-500 text-xl">⚠️</div>
+                    <div class="flex-1">
+                        <h3 class="text-sm font-semibold text-rose-400 tracking-tight">Active Anomalies Detected</h3>
+                        <ul id="alerts-list" class="mt-2 space-y-2 text-sm text-slate-300">
+                            <!-- Injected alerts -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Floor Layout Heatmap & Feeds -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Heatmap Grid Representation -->
+            <div class="glass p-6 rounded-2xl lg:col-span-2 shadow-xl flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-white tracking-tight">Zone Heatmap & Traffic</h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Normalized zone visits and average dwell times</p>
+                    </div>
+                    <div id="confidence-indicator" class="text-xs text-slate-500 font-medium">Confidence: High</div>
+                </div>
+                
+                <!-- Layout Grid representation -->
+                <div class="flex-1 flex flex-col justify-center min-h-[300px] border border-slate-800 rounded-xl p-4 bg-slate-950/50 space-y-8" id="heatmap-layout-container">
+                    <!-- Top Wall Zones -->
+                    <div>
+                        <h3 class="text-xs font-semibold text-slate-400 tracking-wider uppercase mb-2">Top Wall Shelves (CAM_1)</h3>
+                        <div class="grid grid-cols-4 md:grid-cols-8 gap-3" id="top-wall-grid">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Bottom Wall Zones -->
+                    <div>
+                        <h3 class="text-xs font-semibold text-slate-400 tracking-wider uppercase mb-2">Bottom Wall Shelves (CAM_2)</h3>
+                        <div class="grid grid-cols-5 md:grid-cols-10 gap-2" id="bottom-wall-grid">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-time Live Event Logger -->
+            <div class="glass p-6 rounded-2xl shadow-xl flex flex-col h-[450px]">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-white tracking-tight">Real-time Events</h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Shopper behavior event streaming</p>
+                    </div>
+                    <span class="h-2 w-2 rounded-full bg-indigo-500 animate-ping"></span>
+                </div>
+                <div id="events-log-container" class="flex-1 overflow-y-auto space-y-2.5 pr-2 font-mono text-xs text-slate-300">
+                    <div class="text-slate-500 italic text-center py-10">Waiting for live events to stream...</div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass px-6 py-3 flex items-center justify-between text-xs text-slate-500 border-t border-slate-900">
+        <div>&copy; 2026 Apex Retail Systems. Built for Scale.</div>
+        <div class="flex gap-4">
+            <a href="/docs" target="_blank" class="hover:text-violet-400 transition-colors">API Docs</a>
+            <a href="/health" target="_blank" class="hover:text-violet-400 transition-colors">System Health</a>
+        </div>
+    </footer>
+
+    <!-- Interactive script to fetch data -->
+    <script>
+        const API_BASE = "http://localhost:8000";
+        let currentStore = "STORE_BLR_002";
+        let mockEventGeneratorInterval = null;
+
+        document.getElementById("store-select").addEventListener("change", (e) => {
+            currentStore = e.target.value;
+            fetchDashboardData();
+        });
+
+        // Map zone codes to readable name
+        const zoneNames = {
+            "EB_KOREAN": "EB Korean", "THE_FACE_SHOP": "Face Shop", "GOOD_VIBES": "Good Vibes", "DERMDOC": "DermDoc",
+            "MINIMALIST": "Minimalist", "AQUALOGICA": "Aqualogica", "LAKME_SKIN": "Lakme Skin", "ACCESSORIES": "Accessories",
+            "MAYBELLINE": "Maybelline", "FACES_CANADA": "Faces Can.", "LAKME": "Lakme Makeup", "COLORBAR_SUGAR": "Sugar/Color",
+            "SWISS_BEAUTY": "Swiss Beauty", "RENEE": "Renee", "NY_BAE": "NY Bae", "ALPS_GOODNESS": "Alps Good",
+            "STREAX": "Streax", "PMU": "PMU", "BILLING": "Billing Counter",
+            "PURPLLE_MUM_1076_Z01": "Left Shelf", "PURPLLE_MUM_1076_Z02": "Center Display", "PURPLLE_MUM_1076_Z03": "Lipstick Aisle",
+            "PURPLLE_MUM_1076_Z_BILLING_01": "Billing Queue"
+        };
+
+        const topWallZones = ["EB_KOREAN", "THE_FACE_SHOP", "GOOD_VIBES", "DERMDOC", "MINIMALIST", "AQUALOGICA", "LAKME_SKIN", "ACCESSORIES"];
+        const bottomWallZones = ["MAYBELLINE", "FACES_CANADA", "LAKME", "COLORBAR_SUGAR", "SWISS_BEAUTY", "RENEE", "NY_BAE", "ALPS_GOODNESS", "STREAX", "PMU"];
+        const store2Zones = ["PURPLLE_MUM_1076_Z01", "PURPLLE_MUM_1076_Z02", "PURPLLE_MUM_1076_Z03"];
+
+        function getHeatmapColor(val) {
+            // Returns premium indigo/fuchsia heatmap gradient based on value [0, 100]
+            if (val === 0) return 'bg-slate-900/40 border-slate-800 text-slate-400';
+            if (val < 25) return 'bg-violet-950/20 border-violet-900/40 text-violet-400';
+            if (val < 50) return 'bg-violet-900/30 border-violet-700/50 text-violet-300';
+            if (val < 75) return 'bg-fuchsia-900/40 border-fuchsia-600/60 text-fuchsia-200';
+            return 'bg-gradient-to-tr from-violet-600/70 to-fuchsia-600/70 border-violet-400 text-white font-medium';
+        }
+
+        async function fetchDashboardData() {
+            try {
+                // Fetch Metrics
+                const metricsRes = await fetch(`${API_BASE}/stores/${currentStore}/metrics`);
+                const metrics = await metricsRes.json();
+                
+                // Update metrics cards
+                document.getElementById("metric-visitors").innerText = metrics.unique_visitors || 0;
+                document.getElementById("metric-conversion").innerText = `${metrics.conversion_rate || 0.0}%`;
+                document.getElementById("conversion-progress").style.width = `${metrics.conversion_rate || 0}%`;
+                document.getElementById("metric-queue").innerText = metrics.queue_depth || 0;
+                document.getElementById("metric-abandonment").innerText = `${metrics.abandonment_rate || 0.0}%`;
+                document.getElementById("abandonment-progress").style.width = `${metrics.abandonment_rate || 0}%`;
+
+                // Update queue badge
+                const qBadge = document.getElementById("queue-status-badge");
+                if (metrics.queue_depth > 5) {
+                    qBadge.innerText = "Critical";
+                    qBadge.className = "px-2 py-0.5 rounded text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20";
+                } else if (metrics.queue_depth >= 3) {
+                    qBadge.innerText = "Warning";
+                    qBadge.className = "px-2 py-0.5 rounded text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20";
+                } else {
+                    qBadge.innerText = "Normal";
+                    qBadge.className = "px-2 py-0.5 rounded text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+                }
+
+                // Fetch Anomalies
+                const anomaliesRes = await fetch(`${API_BASE}/stores/${currentStore}/anomalies`);
+                const anomaliesData = await anomaliesRes.json();
+                
+                const alertsSection = document.getElementById("alerts-section");
+                const alertsList = document.getElementById("alerts-list");
+                
+                if (anomaliesData.anomalies && anomaliesData.anomalies.length > 0) {
+                    alertsSection.classList.remove("hidden");
+                    alertsList.innerHTML = anomaliesData.anomalies.map(a => `
+                        <li class="bg-rose-950/20 border border-rose-500/10 p-3 rounded-lg flex items-center justify-between">
+                            <div>
+                                <span class="font-bold text-xs uppercase px-1.5 py-0.5 rounded ${a.severity === 'CRITICAL' ? 'bg-rose-500 text-white' : 'bg-amber-500 text-slate-900'}">${a.severity}</span>
+                                <span class="ml-2 font-medium text-slate-200">${a.message}</span>
+                            </div>
+                            <div class="text-xs text-rose-400 italic">Action: ${a.suggested_action}</div>
+                        </li>
+                    `).join('');
+                } else {
+                    alertsSection.classList.add("hidden");
+                }
+
+                // Fetch Heatmap
+                const heatmapRes = await fetch(`${API_BASE}/stores/${currentStore}/heatmap`);
+                const heatmapData = await heatmapRes.json();
+                
+                document.getElementById("confidence-indicator").innerText = `Confidence: ${heatmapData.data_confidence ? 'High (>=20 sessions)' : 'Low (<20 sessions)'}`;
+                
+                const heatmap = heatmapData.heatmap || {};
+                
+                const heatmapLayoutContainer = document.getElementById("heatmap-layout-container");
+                if (currentStore === "ST1076") {
+                    // Mumbai Store Layout
+                    heatmapLayoutContainer.innerHTML = `
+                        <div>
+                            <h3 class="text-xs font-semibold text-slate-400 tracking-wider uppercase mb-2">Mumbai Store Shelves (CAM_1)</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="mumbai-grid">
+                                ${store2Zones.map(zone => {
+                                    const zData = heatmap[zone] || { normalized_frequency: 0, visit_count: 0, avg_dwell_sec: 0.0 };
+                                    const colorClass = getHeatmapColor(zData.normalized_frequency);
+                                    return `
+                                        <div class="p-5 rounded-xl border flex flex-col items-center justify-center text-center shadow transition-all duration-300 hover:scale-105 ${colorClass}">
+                                            <span class="text-sm font-semibold truncate w-full">${zoneNames[zone]}</span>
+                                            <span class="text-2xl font-bold mt-2">${zData.visit_count}</span>
+                                            <span class="text-xs opacity-70 mt-1">${zData.avg_dwell_sec}s avg dwell</span>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Bangalore Store Layout
+                    heatmapLayoutContainer.innerHTML = `
+                        <!-- Top Wall Zones -->
+                        <div>
+                            <h3 class="text-xs font-semibold text-slate-400 tracking-wider uppercase mb-2">Top Wall Shelves (CAM_1)</h3>
+                            <div class="grid grid-cols-4 md:grid-cols-8 gap-3" id="top-wall-grid">
+                                ${topWallZones.map(zone => {
+                                    const zData = heatmap[zone] || { normalized_frequency: 0, visit_count: 0, avg_dwell_sec: 0.0 };
+                                    const colorClass = getHeatmapColor(zData.normalized_frequency);
+                                    return `
+                                        <div class="p-3 rounded-xl border flex flex-col items-center justify-center text-center shadow transition-all duration-300 hover:scale-105 ${colorClass}">
+                                            <span class="text-xs font-semibold truncate w-full">${zoneNames[zone]}</span>
+                                            <span class="text-lg font-bold mt-1">${zData.visit_count}</span>
+                                            <span class="text-[10px] opacity-70 mt-0.5">${zData.avg_dwell_sec}s avg</span>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+
+                        <!-- Bottom Wall Zones -->
+                        <div class="mt-8">
+                            <h3 class="text-xs font-semibold text-slate-400 tracking-wider uppercase mb-2">Bottom Wall Shelves (CAM_2)</h3>
+                            <div class="grid grid-cols-5 md:grid-cols-10 gap-2" id="bottom-wall-grid">
+                                ${bottomWallZones.map(zone => {
+                                    const zData = heatmap[zone] || { normalized_frequency: 0, visit_count: 0, avg_dwell_sec: 0.0 };
+                                    const colorClass = getHeatmapColor(zData.normalized_frequency);
+                                    return `
+                                        <div class="p-2.5 rounded-xl border flex flex-col items-center justify-center text-center shadow transition-all duration-300 hover:scale-105 ${colorClass}">
+                                            <span class="text-[10px] font-semibold truncate w-full">${zoneNames[zone]}</span>
+                                            <span class="text-base font-bold mt-0.5">${zData.visit_count}</span>
+                                            <span class="text-[9px] opacity-70 mt-0.5">${zData.avg_dwell_sec}s</span>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+            } catch (err) {
+                console.error("Error updating dashboard: ", err);
+            }
+        }
+
+        // Simulates events log updating live on the screen
+        function startLiveEventsSimulation() {
+            const container = document.getElementById("events-log-container");
+            container.innerHTML = ""; // Clear loader
+            
+            const eventTemplates = [
+                { type: "ENTRY", text: "Customer entered store threshold", camera: "CAM_3" },
+                { type: "ZONE_ENTER", text: "Customer approached Maybelline shelf", camera: "CAM_2" },
+                { type: "ZONE_ENTER", text: "Customer entered Minimalist zone", camera: "CAM_1" },
+                { type: "ZONE_DWELL", text: "Customer dwelling at Good Vibes section for 30s", camera: "CAM_1" },
+                { type: "BILLING_QUEUE_JOIN", text: "Customer joined billing line (Depth: 2)", camera: "CAM_5" },
+                { type: "ZONE_EXIT", text: "Customer left Faces Canada shelf (dwell: 45s)", camera: "CAM_2" },
+                { type: "EXIT", text: "Customer exited store threshold", camera: "CAM_3" }
+            ];
+
+            let count = 0;
+            if (mockEventGeneratorInterval) clearInterval(mockEventGeneratorInterval);
+            
+            mockEventGeneratorInterval = setInterval(() => {
+                count++;
+                const visitorId = `VIS_${(Math.floor(Math.random() * 5) + 1).toString().padStart(3, '0')}`;
+                const temp = eventTemplates[Math.floor(Math.random() * eventTemplates.length)];
+                
+                const timeStr = new Date().toLocaleTimeString();
+                
+                const logEntry = document.createElement("div");
+                logEntry.className = "flex gap-2.5 py-1 border-b border-slate-900/50 hover:bg-slate-900/30 transition-colors";
+                
+                let labelColor = "text-violet-400";
+                if (temp.type === "ENTRY" || temp.type === "EXIT") labelColor = "text-emerald-400";
+                if (temp.type === "BILLING_QUEUE_JOIN") labelColor = "text-amber-400 font-medium";
+                
+                logEntry.innerHTML = `
+                    <span class="text-slate-500">[${timeStr}]</span>
+                    <span class="text-slate-400">[${temp.camera}]</span>
+                    <span class="text-indigo-400 font-bold">${visitorId}</span>
+                    <span class="${labelColor} font-bold">${temp.type}</span>
+                    <span class="text-slate-300 flex-1">${temp.text}</span>
+                `;
+                
+                container.prepend(logEntry);
+                if (container.children.length > 25) {
+                    container.removeChild(container.lastChild);
+                }
+                
+                // Fetch metrics on every new event
+                fetchDashboardData();
+            }, 3000); // add one entry every 3 seconds
+        }
+
+        // Initial loading
+        fetchDashboardData();
+        startLiveEventsSimulation();
+        
+        // Refresh API details every 10 seconds
+        setInterval(fetchDashboardData, 10000);
+    </script>
+</body>
+</html>

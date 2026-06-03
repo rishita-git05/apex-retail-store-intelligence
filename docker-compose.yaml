@@ -1,0 +1,9 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/workspace/data
+      - ./store.db:/workspace/store.db
+    restart: unless-stopped

@@ -18,7 +18,7 @@ To run the entire system on a clean host machine:
 
 ```bash
 # 1. Clone the repository and enter the directory
-git clone https://github.com/your-username/store-intelligence.git && cd store-intelligence
+git clone https://github.com/rishita-git05/apex-retail-store-intelligence.git && cd store-intelligence
 
 # 2. Start the API & database server container in background
 docker compose up --build -d

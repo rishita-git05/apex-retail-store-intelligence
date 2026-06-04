@@ -3,7 +3,13 @@ services:
     build: .
     ports:
       - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:////workspace/db/store.db
     volumes:
       - ./data:/workspace/data
-      - ./store.db:/workspace/store.db
+      - store-db:/workspace/db
     restart: unless-stopped
+
+volumes:
+  store-db:
+

@@ -87,43 +87,51 @@ def populate_pos_data():
 
 
 def populate_events_data():
-    """Populates events from events.jsonl if they are not already loaded."""
-    jsonl_path = "data/events.jsonl"
-    if not os.path.exists(jsonl_path) or os.path.getsize(jsonl_path) == 0:
-        print("Events JSONL not found or empty.")
-        return
-        
+    """Populates events from events JSONL files if they are not already loaded for each store."""
+    stores = ["STORE_BLR_002", "ST1076"]
     db = SessionLocal()
     try:
-        count = db.query(EventDB).count()
-        if count > 0:
-            print(f"Events table already populated with {count} records. Skipping import.")
-            return
-            
-        print("Importing events from JSONL...")
-        events = []
-        with open(jsonl_path, mode="r") as f:
-            for line in f:
-                if not line.strip():
-                    continue
-                row = json.loads(line)
-                events.append(EventDB(
-                    event_id=row["event_id"],
-                    store_id=row["store_id"],
-                    camera_id=row["camera_id"],
-                    visitor_id=row["visitor_id"],
-                    event_type=row["event_type"],
-                    timestamp=row["timestamp"],
-                    zone_id=row["zone_id"],
-                    dwell_ms=row["dwell_ms"],
-                    is_staff=row["is_staff"],
-                    confidence=row["confidence"],
-                    metadata_json=json.dumps(row["metadata"])
-                ))
-            
-            db.bulk_save_objects(events)
-            db.commit()
-            print(f"Imported {len(events)} events.")
+        for store_id in stores:
+            count = db.query(EventDB).filter(EventDB.store_id == store_id).count()
+            if count > 0:
+                print(f"Events table already populated for store {store_id} with {count} records. Skipping import.")
+                continue
+                
+            # Check store-specific file first, fall back to events.jsonl
+            jsonl_path = f"data/events_{store_id}.jsonl"
+            if not os.path.exists(jsonl_path) or os.path.getsize(jsonl_path) == 0:
+                jsonl_path = "data/events.jsonl"
+                
+            if not os.path.exists(jsonl_path) or os.path.getsize(jsonl_path) == 0:
+                print(f"Events JSONL for store {store_id} not found or empty.")
+                continue
+                
+            print(f"Importing events for store {store_id} from {jsonl_path}...")
+            events = []
+            with open(jsonl_path, mode="r") as f:
+                for line in f:
+                    if not line.strip():
+                        continue
+                    row = json.loads(line)
+                    if row.get("store_id") == store_id:
+                        events.append(EventDB(
+                            event_id=row["event_id"],
+                            store_id=row["store_id"],
+                            camera_id=row["camera_id"],
+                            visitor_id=row["visitor_id"],
+                            event_type=row["event_type"],
+                            timestamp=row["timestamp"],
+                            zone_id=row["zone_id"],
+                            dwell_ms=row["dwell_ms"],
+                            is_staff=row["is_staff"],
+                            confidence=row["confidence"],
+                            metadata_json=json.dumps(row["metadata"])
+                        ))
+                        
+            if events:
+                db.bulk_save_objects(events)
+                db.commit()
+                print(f"Imported {len(events)} events for store {store_id}.")
     except Exception as e:
         print(f"Error importing events: {e}")
         db.rollback()

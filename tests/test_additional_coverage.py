@@ -242,6 +242,8 @@ def test_main_populate_events_data_exception(monkeypatch):
     class MockSession:
         def query(self, *args, **kwargs):
             class MockQuery:
+                def filter(self, *args, **kwargs):
+                    return self
                 def count(self):
                     return 0
             return MockQuery()

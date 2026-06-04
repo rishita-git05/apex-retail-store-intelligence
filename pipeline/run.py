@@ -9,6 +9,7 @@ from emit import EventEmitter
 def main():
     parser = argparse.ArgumentParser(description="Run Store Intelligence CV pipeline.")
     parser.add_argument("--store", type=str, default="STORE_BLR_002", help="Store ID to run pipeline for.")
+    parser.add_argument("--output", type=str, default=None, help="Output path for JSONL events. Defaults to data/events_{store}.jsonl")
     args = parser.parse_args()
     
     store_id = args.store
@@ -133,8 +134,8 @@ def main():
     # 5. Sort all events chronologically by timestamp
     all_events.sort(key=lambda x: x["timestamp"])
 
-    # 6. Write events to data/events.jsonl
-    output_path = "data/events.jsonl"
+    # 6. Write events to output file
+    output_path = args.output if args.output else f"data/events_{store_id}.jsonl"
     with open(output_path, "w") as f:
         for ev in all_events:
             f.write(json.dumps(ev) + "\n")

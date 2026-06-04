@@ -141,14 +141,16 @@ def main():
 
     print(f"Pipeline execution complete. Generated {len(all_events)} events inside {output_path}.")
     
-    # 7. Auto-post events to the local FastAPI app
+    # 7. Auto-post events to the FastAPI app
     try:
         import requests
-        print("Auto-posting events to API...")
+        api_base_url = os.getenv("API_SERVER_URL", "http://localhost:8000").rstrip("/")
+        ingest_url = f"{api_base_url}/events/ingest"
+        print(f"Auto-posting events to API at {ingest_url}...")
         # Post in batches of 500
         for i in range(0, len(all_events), 500):
             batch = all_events[i:i+500]
-            resp = requests.post("http://localhost:8000/events/ingest", json=batch)
+            resp = requests.post(ingest_url, json=batch)
             print(f"Posted batch {i//500 + 1}: status code {resp.status_code}")
     except Exception as e:
         print(f"Skipping auto-post: API not running or requests not installed. Detail: {e}")

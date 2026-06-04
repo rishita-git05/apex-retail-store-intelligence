@@ -10,8 +10,6 @@ router = APIRouter()
 @router.get("/stores/{store_id}/funnel")
 def get_funnel(store_id: str, response: Response):
     """Computes session-based conversion funnel: Entry -> Zone Visit -> Billing Queue -> Purchase."""
-    if store_id == "ST1008":
-        store_id = "STORE_BLR_002"
     try:
         db = SessionLocal()
     except Exception:

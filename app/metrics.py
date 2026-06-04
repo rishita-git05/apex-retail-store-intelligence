@@ -22,8 +22,6 @@ def parse_iso_timestamp(ts_str):
 @router.get("/stores/{store_id}/metrics")
 def get_metrics(store_id: str, response: Response):
     """Computes real-time store metrics including unique visitors, conversion rate, and queue details."""
-    if store_id == "ST1008":
-        store_id = "STORE_BLR_002"
     try:
         db = SessionLocal()
     except Exception:
@@ -154,8 +152,6 @@ def get_metrics(store_id: str, response: Response):
 @router.get("/stores/{store_id}/heatmap")
 def get_heatmap(store_id: str, response: Response):
     """Generates normalized zone visit frequency and average dwell times for grid heatmap rendering."""
-    if store_id == "ST1008":
-        store_id = "STORE_BLR_002"
     try:
         db = SessionLocal()
     except Exception:

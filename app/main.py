@@ -43,7 +43,9 @@ def populate_pos_data():
                 
                 store_id = row["store_id"]
                 if store_id == "ST1008":
-                    store_id = "STORE_BLR_002"  # Align store ID
+                    # Raw POS CSV dataset uses legacy ID "ST1008" for Brigade Road.
+                    # Align it to "STORE_BLR_002" to match standard computer vision events.
+                    store_id = "STORE_BLR_002"
                     
                 transactions.append(POSTransactionDB(
                     order_id=row["order_id"],

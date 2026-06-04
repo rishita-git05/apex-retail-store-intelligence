@@ -12,8 +12,6 @@ router = APIRouter()
 @router.get("/stores/{store_id}/anomalies")
 def get_anomalies(store_id: str, response: Response):
     """Detects active operational anomalies: queue spikes, conversion drops, and dead zones."""
-    if store_id == "ST1008":
-        store_id = "STORE_BLR_002"
     try:
         db = SessionLocal()
     except Exception:

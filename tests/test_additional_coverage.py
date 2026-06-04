@@ -265,3 +265,12 @@ def test_middleware_logging():
     res = client.get("/stores/STORE_BLR_002/metrics")
     assert res.status_code == 200
     assert "X-Trace-ID" in res.headers
+
+
+def test_root_dashboard_serving():
+    client = TestClient(app)
+    res = client.get("/")
+    assert res.status_code == 200
+    assert "text/html" in res.headers["content-type"]
+    assert "Apex Retail" in res.text
+

@@ -15,6 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application files
 COPY app/ /workspace/app/
 COPY data/ /workspace/data/
+COPY dashboard/ /workspace/dashboard/
 
 EXPOSE 8000
 

@@ -5,6 +5,7 @@ import uuid
 import json
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import engine, Base, SessionLocal
@@ -190,6 +191,16 @@ async def structured_logging_middleware(request: Request, call_next):
     
     response.headers["X-Trace-ID"] = trace_id
     return response
+
+
+# Serve Dashboard at Root
+@app.get("/", response_class=HTMLResponse)
+async def read_index():
+    """Serves the glassmorphic live dashboard at the root path."""
+    dashboard_path = os.path.join("dashboard", "index.html")
+    with open(dashboard_path, "r", encoding="utf-8") as f:
+        html_content = f.read()
+    return HTMLResponse(content=html_content, status_code=200)
 
 
 # Register Routers

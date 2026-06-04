@@ -208,7 +208,7 @@
 
     <!-- Interactive script to fetch data -->
     <script>
-        const API_BASE = "http://localhost:8000";
+        const API_BASE = window.location.origin.startsWith('http') ? window.location.origin : "http://localhost:8000";
         let currentStore = "STORE_BLR_002";
         let mockEventGeneratorInterval = null;
 
